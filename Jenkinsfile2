@@ -72,7 +72,7 @@ pipeline {
       steps {
         // requires OWASP Dependency Check plugin
         dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', 
-                        dependencyCheckPublisherPattern: '**/dependency-check-report.xml'
+                        dependencyCheckPublisher Pattern: '**/dependency-check-report.xml'
       }
     }
 
