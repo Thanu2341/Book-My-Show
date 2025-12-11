@@ -64,15 +64,7 @@ pipeline {
       }
     }
 
-   /*
-stage('OWASP FS Scan') {
-  steps {
-    dependencyCheck odcInstallation: 'Dependency-Check',
-                    additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit'
-    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-  }
-}
-*/
+ 
 
     stage('Trivy FS Scan') {
       steps {
