@@ -59,7 +59,22 @@ pipeline {
       }
     }
   } // end stages
-
+  stage('Deploy to EKS') {
+  steps {
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+      sh '''
+        set -e
+        aws sts get-caller-identity
+        aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}
+        kubectl apply -f deployment.yml
+        kubectl apply -f service.yml
+        kubectl rollout status deployment/bms-deployment --timeout=180s || true
+        kubectl get pods -o wide
+        kubectl get svc
+      '''
+    }
+  }
+}
   post {
     always {
       echo "Build finished: ${currentBuild.currentResult}"
