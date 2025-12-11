@@ -47,7 +47,7 @@ pipeline {
       steps {
         script {
           // withDockerRegistry requires credentials configured in Jenkins
-          withDockerRegistry(credentialsId: 'docker', url: '') {
+          withDockerRegistry(credentialsId: 'docker-creds', url: '') {
             sh '''
               echo "Building Docker image..."
               docker build --no-cache -t ${DOCKER_IMAGE} -f bookmyshow-app/Dockerfile bookmyshow-app
