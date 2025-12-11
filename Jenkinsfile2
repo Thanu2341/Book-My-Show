@@ -66,7 +66,6 @@ pipeline {
 
     stage('OWASP FS Scan') {
   steps {
-    // use the tool name you created in Global Tool Configuration
     dependencyCheck odcInstallation: 'Dependency-Check',
                     additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit'
     dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
