@@ -3,8 +3,7 @@ pipeline {
 
   environment {
     DOCKER_IMAGE  = 'thanu5/docker-demo:2.0'
-    EKS_CLUSTER_NAME = 'my-eks-cluster'
-    AWS_REGION = 'eu-north-1'
+    AWS_REGION = 'eu-north-1'   // keep, for later EKS step
   }
 
   stages {
@@ -15,27 +14,55 @@ pipeline {
       }
     }
 
-    stage('Install') {
+    stage('Install Dependencies') {
       steps {
         sh '''
-          echo "Skipping heavy installs — test stage"
-          echo "If you want npm, add it later"
+          set -e
+          cd bookmyshow-app || { echo "Error: directory bookmyshow-app missing"; exit 1; }
+          ls -la
+          if [ -f package.json ]; then
+            rm -rf node_modules package-lock.json || true
+            npm install
+          else
+            echo "Error: package.json not found in bookmyshow-app!"
+            exit 1
+          fi
         '''
       }
     }
 
-    stage('Trivy') {
+    stage('OWASP FS Scan (skipped)') {
       steps {
-        sh 'echo "skipping trivy for now" > trivyfs.txt || true'
+        echo 'OWASP stage removed for now'
       }
     }
 
-    stage('Deploy (noop)') {
+    stage('Trivy FS Scan') {
       steps {
-        sh 'echo "deploy step placeholder"'
+        sh 'trivy fs . > trivyfs.txt || true'
       }
+    }
+
+    stage('Docker Build & Push') {
+      steps {
+        script {
+          // withDockerRegistry requires credentials configured in Jenkins
+          withDockerRegistry(credentialsId: 'docker', url: '') {
+            sh '''
+              echo "Building Docker image..."
+              docker build --no-cache -t ${DOCKER_IMAGE} -f bookmyshow-app/Dockerfile bookmyshow-app
+              echo "Pushing Docker image to Docker Hub..."
+              docker push ${DOCKER_IMAGE}
+            '''
+          }
+        }
+      }
+    }
+  } // end stages
+
+  post {
+    always {
+      echo "Build finished: ${currentBuild.currentResult}"
     }
   }
-
-  post { always { echo "Build finished: ${currentBuild.currentResult}" } }
 }
