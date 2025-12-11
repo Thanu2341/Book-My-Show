@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: bms-container
-        image: thanu5/docker-demo:1.0  # Replace with your Docker image
+        image: thanu5/docker-demo:2.0  # Replace with your Docker image
         ports:
         - containerPort: 3000  # Replace with the port your app runs on
