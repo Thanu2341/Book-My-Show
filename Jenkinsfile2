@@ -7,7 +7,6 @@ pipeline {
   }
 
   environment {
-    // evaluate tool() into a string using Groovy interpolation
     SCANNER_HOME = "${tool 'sonarqube-scanner'}"
     DOCKER_IMAGE  = 'thanu5/docker-demo:2.0'
     EKS_CLUSTER_NAME = 'my-eks-cluster'
@@ -21,19 +20,17 @@ pipeline {
 
     stage('Checkout from Git') {
       steps {
-        // adjust URL/branch if needed
         git branch: 'main', url: 'https://github.com/Thanu2341/Book-My-Show.git'
-        sh 'ls -la' // verify files after checkout
+        sh 'ls -la'
       }
     }
 
-    // (optional) Sonar stage commented out in your screenshots — keep or uncomment if you have Sonar set up
     /*
     stage('SonarQube Analysis') {
       steps {
         withSonarQubeEnv('sonarserver') {
           sh """
-            ${SCANNER_HOME}/bin/sonar-scanner \
+            ${SCANNER_HOME}/bin/sonarqube-scanner \
               -Dsonar.projectName=BMS \
               -Dsonar.projectKey=BMS
           """
@@ -45,7 +42,6 @@ pipeline {
     stage('Quality Gate') {
       steps {
         script {
-          // requires SonarQube plugin and credentials configured
           waitForQualityGate abortPipeline: false, credentialsId: 'sonarid'
         }
       }
@@ -70,9 +66,9 @@ pipeline {
 
     stage('OWASP FS Scan') {
       steps {
-        // requires OWASP Dependency Check plugin
-        dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', 
-                        dependencyCheckPublisherPattern: '**/dependency-check-report.xml'
+        // fixed: no trailing comma and correct publisher syntax
+        dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit'
+        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
       }
     }
 
@@ -85,7 +81,6 @@ pipeline {
     stage('Docker Build & Push') {
       steps {
         script {
-          // withDockerRegistry requires Docker plugin & credentialsId 'docker'
           withDockerRegistry(credentialsId: 'docker', url: '') {
             sh '''
               echo "Building Docker image..."
@@ -123,11 +118,10 @@ pipeline {
         }
       }
     }
-  } // end stages
+  }
 
   post {
     always {
-      // requires Email Extension plugin configured
       emailext(
         attachLog: true,
         subject: "${currentBuild.currentResult}: ${env.JOB_NAME}",
