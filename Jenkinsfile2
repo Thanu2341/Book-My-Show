@@ -65,12 +65,13 @@ pipeline {
     }
 
     stage('OWASP FS Scan') {
-      steps {
-        // fixed: no trailing comma and correct publisher syntax
-        dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit'
-        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-      }
-    }
+  steps {
+    // use the tool name you created in Global Tool Configuration
+    dependencyCheck odcInstallation: 'Dependency-Check',
+                    additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit'
+    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+  }
+}
 
     stage('Trivy FS Scan') {
       steps {
