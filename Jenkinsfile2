@@ -9,8 +9,8 @@ pipeline {
     environment {
         SCANNER_HOME = tool 'sonarqube-scanner'
         DOCKER_IMAGE = 'thanu5/docker-demo:1.0'
-        EKS_CLUSTER_NAME = 'bookmyshow-eks'
-        AWS_REGION = 'us-east-1'
+        EKS_CLUSTER_NAME = 'my-eks-cluster'
+        AWS_REGION = 'eu-north-1'
     }
 
     stages {
